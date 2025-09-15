@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/home/xvitxr/dev/ini4u/bin",
-  "command": "/usr/sbin/c++   -std=gnu++20 -o CMakeFiles/ini4u.dir/ini4u.cpp.o -c /home/xvitxr/dev/ini4u/ini4u.cpp",
-  "file": "/home/xvitxr/dev/ini4u/ini4u.cpp",
-  "output": "CMakeFiles/ini4u.dir/ini4u.cpp.o"
-}
-]
