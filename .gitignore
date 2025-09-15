@@ -1,0 +1,6 @@
+# clangd
+.cache/
+compile_commands.json
+
+# binary directory
+[Bb]in/
