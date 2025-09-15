@@ -1,0 +1,1 @@
+/usr/sbin/c++ -Wl,--dependency-file=CMakeFiles/ini4u.dir/link.d CMakeFiles/ini4u.dir/ini4u.cpp.o -o ini4u

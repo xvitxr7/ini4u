@@ -1,0 +1,3 @@
+/home/xvitxr/dev/ini4u/bin/CMakeFiles/ini4u.dir
+/home/xvitxr/dev/ini4u/bin/CMakeFiles/edit_cache.dir
+/home/xvitxr/dev/ini4u/bin/CMakeFiles/rebuild_cache.dir
