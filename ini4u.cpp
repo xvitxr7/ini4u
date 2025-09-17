@@ -70,19 +70,11 @@ int main()
 	TEST_EQ(test_node_6.name(), "value");
 	TEST_EQ(test_node_6.get(ini::i32_deserializer{}), 20);
 	
-    ini::structure str = ini::structure::from_raw(
-            "[header1]\n"
-            "this-is-a-node=value\n"
-            "node1=test_value ; this is a comment. this should be ignored\n"
-            "node2=test_value2\n"
-            "[header2]\n"
-            "morenode  =         320"
-    );
+    ini::structure str = ini::structure::from_file("test.ini");
 
-    for (const auto& node : str.all_nodes_of("header2")) {
-        std::cout << node.get(ini::u32_deserializer{}) << '\n';
+    for (const auto& node : str.all_nodes_of("ui")) {
+        std::cout << std::string(node) << '\n';
     }
-
 
 	printf("\nAll %d tests passed successfully.", assertions);
 	std::endl(std::cout);

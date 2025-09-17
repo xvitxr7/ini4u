@@ -2,7 +2,9 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdio>
 #include <functional>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <sstream>
@@ -10,6 +12,9 @@
 #include <format>
 #include <bitset>
 #include <unordered_map>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
 
 namespace ini {
     class header;
@@ -42,7 +47,12 @@ inline std::string trim(const std::string& source) {
 namespace error {
 
 class empty_node_value {};
-class malformed_node   {};
+class malformed_node : public std::runtime_error {
+public:
+    malformed_node(const char* what) noexcept
+        : std::runtime_error(what)
+    {}
+};
 class malformed_header {};
 class cast_not_allowed {};
 
@@ -186,9 +196,12 @@ public:
 	}
 	
 	static node from_raw(const std::string& raw) {
+        if (raw.size() < 1)
+            throw error::malformed_node("Empty raw string.");
 		auto token_idx = raw.find('=');
-		if (token_idx == std::string::npos)
-			throw error::malformed_node();
+		if (token_idx == std::string::npos) {
+			throw error::malformed_node("Couldn't find '=' token.");
+        }
 		auto name  = parser::trim(raw.substr(0, token_idx));
 		auto value = raw.substr(token_idx + 1);
 		return node(name, value);
@@ -233,7 +246,7 @@ public:
 	}
 
 	operator std::string() const noexcept {
-		return std::format("{} = {}", _name, _value);
+		return std::format("{}={}", _name, _value);
 	}
 
 	template <typename T> requires (!std::is_same<const typename std::remove_cv<T>::type&, const node&>::value)
@@ -341,6 +354,22 @@ public:
         }
         
         return s;
+    }
+
+    static structure from_file(std::filesystem::path path) {
+        // should throw on failure, right?
+        auto fstream = std::ifstream(path, std::ios::in);
+        
+        std::string buf;
+        char cur_char;
+        while (!fstream.eof()) {
+            cur_char = fstream.get();
+            if (cur_char == -1) // maybe eof, i don't know, but it happens (i should research this as this whole project is a way of me getting used to file manipulation, but here we are I guess)
+                continue;
+            buf.append(1, cur_char);
+        }
+
+        return from_raw(buf);
     }
 
     structure& add_node(const header& h, const node& n) {
