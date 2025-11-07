@@ -15,6 +15,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <cassert>
 
 namespace ini {
     class header;
@@ -364,7 +365,7 @@ public:
         char cur_char;
         while (!fstream.eof()) {
             cur_char = fstream.get();
-            if (cur_char == -1) // maybe eof, i don't know, but it happens (i should research this as this whole project is a way of me getting used to file manipulation, but here we are I guess)
+            if (cur_char == -1) // maybe eof, i don't know, but it happens (i should research this as this whole project is a way of me getting used to file manipulation, but here we are, I guess)
                 continue;
             buf.append(1, cur_char);
         }
