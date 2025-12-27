@@ -73,9 +73,9 @@ int main()
     ini::structure struc = ini::structure::from_file("test.ini");
 
     for (auto& [header, nodes] : struc) {
-        std::cout << "[" << header.name() << "]\n";
+        std::cout << std::string(header) << "\n";
         for (auto& node : nodes)
-            std::cout << node.name() << "=" << node.raw_value() << '\n';
+            std::cout << std::string(node) << '\n';
     } 
 
 	printf("\nAll %d tests passed successfully.", assertions);

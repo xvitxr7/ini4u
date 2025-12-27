@@ -317,17 +317,20 @@ public:
     // parses raw data from a file into a new structure.
     static structure from_raw(std::string_view data) {
         structure s;
-        std::string buf = std::string(data);
         
         std::vector<std::string> lines;
-        size_t last_pos = 0;
 
-        do {
-            // splits the raw content into lines
-            last_pos = buf.find('\n');
-            lines.push_back(buf.substr(0, last_pos));
-            buf = buf.substr(last_pos + 1, buf.size());
-        } while (last_pos != std::string::npos);
+        // parse lines
+        {
+            size_t last_pos = 0;
+            std::string buf = std::string(data);
+            do {
+                // splits the raw content into lines
+                last_pos = buf.find('\n');
+                lines.push_back(buf.substr(0, last_pos));
+                buf = buf.substr(last_pos + 1, buf.size());
+            } while (last_pos != std::string::npos);
+        }
 
         // actual parsing
         {
