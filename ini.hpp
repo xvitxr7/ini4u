@@ -196,7 +196,7 @@ public:
 		_value = value;
 	}
 	
-	static node from_raw(const std::string& raw) {
+	static node from_raw(std::string_view raw) {
         if (raw.size() < 1)
             throw error::malformed_node("Empty raw string.");
 		auto token_idx = raw.find('=');
@@ -204,7 +204,7 @@ public:
 			throw error::malformed_node("Couldn't find '=' token.");
         }
 		auto name  = parser::trim(raw.substr(0, token_idx));
-		auto value = raw.substr(token_idx + 1);
+		auto value = std::string(raw.substr(token_idx + 1));
 		return node(name, value);
 	}
 	~node() = default;
