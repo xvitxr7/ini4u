@@ -36,7 +36,7 @@ namespace ini {
 namespace parser {
 
 [[nodiscard]]
-inline std::string trim(const std::string& source) {
+inline std::string trim(std::string_view source) {
 	std::string result(source);
 	result.erase(0, result.find_first_not_of(" \n\r\t"));
 	result.erase(result.find_last_not_of(" \n\r\t") + 1);
@@ -266,10 +266,12 @@ public:
 		_name = name;
 	}
 
-	static header from_raw(const std::string& raw) {
+	static header from_raw(std::string_view raw) {
 		std::string buf = parser::trim(raw);
 		// finds opening and closing brackets
-		auto op_b = buf.find('['), cl_b = buf.find(']');
+		auto op_b = buf.find('['),
+             cl_b = buf.find(']');
+
 		if ((op_b == std::string::npos) || (cl_b == std::string::npos))
 			throw error::malformed_header();
 
@@ -307,13 +309,12 @@ private:
 	std::string _name;
 };
 
-class structure {
+using struct_tree = std::unordered_map<header, std::vector<node>>;
+class structure : public struct_tree {
 public:
-	structure() {
-         
-	}
+	structure() {}
 
-    // parses raw data from a file into a new structure
+    // parses raw data from a file into a new structure.
     static structure from_raw(std::string_view data) {
         structure s;
         std::string buf = std::string(data);
@@ -337,6 +338,8 @@ public:
                 if (comment_idx != std::string::npos) {
                     line = line.substr(0, comment_idx);
                 }
+                else if (comment_idx == 0)
+                    break;
 
                 line = parser::trim(line);
                 if (line.empty()) { // nothing to do
@@ -350,13 +353,14 @@ public:
                 }
 
                 // node
-                s.add_node(current_header, node::from_raw(line));
+                s[current_header].push_back(node::from_raw(line));
             }
         }
         
         return s;
     }
 
+    // constructs an INI structure from a file given by its path (`std::filesystem::path`).
     static structure from_file(std::filesystem::path path) {
         // should throw on failure, right?
         auto fstream = std::ifstream(path, std::ios::in);
@@ -373,31 +377,33 @@ public:
         return from_raw(buf);
     }
 
-    structure& add_node(const header& h, const node& n) {
-        _tree[h.name()].push_back(n);
-        return *this;
-    }
-
-    structure& add_node(const header& h, node&& n) {
-        _tree[h.name()].emplace_back(n); // std::move?
-        return *this;
-    }
-
     template <typename It>
     structure& add_nodes(const header& h, It begin, It end) {
-        auto& nodes = _tree[h.name()];
+        auto& nodes = (*this)[h.name()];
         std::for_each(nodes.begin(), nodes.end(), [&nodes, begin, end](const auto& v) {
             nodes.push_back(v);
         });
         return *this;
     }
 
-    std::vector<node>& all_nodes_of(const std::string& header_name) {
-        return _tree.at(header_name);
+    std::vector<node>& nodes_of(const std::string& header_name) {
+        return at(header_name);
     }
 
-private:
-    std::unordered_map<header, std::vector<node>> _tree;
+    std::vector<node> nodes() {
+        std::vector<node> nodes;
+        for (auto& [header, hnodes] : *this)
+            for (auto& node : hnodes)
+                nodes.push_back(node);
+        return nodes;
+    }
+
+    std::vector<header> headers() {
+        std::vector<header> headers;
+        for (auto& [header, nodes] : *this)
+            headers.push_back(header);
+        return headers;
+    }
 };
 
 }

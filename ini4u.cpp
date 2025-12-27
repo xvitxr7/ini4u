@@ -70,11 +70,13 @@ int main()
 	TEST_EQ(test_node_6.name(), "value");
 	TEST_EQ(test_node_6.get(ini::i32_deserializer{}), 20);
 	
-    ini::structure str = ini::structure::from_file("test.ini");
+    ini::structure struc = ini::structure::from_file("test.ini");
 
-    for (const auto& node : str.all_nodes_of("ui")) {
-        std::cout << std::string(node) << '\n';
-    }
+    for (auto& [header, nodes] : struc) {
+        std::cout << "[" << header.name() << "]\n";
+        for (auto& node : nodes)
+            std::cout << node.name() << "=" << node.raw_value() << '\n';
+    } 
 
 	printf("\nAll %d tests passed successfully.", assertions);
 	std::endl(std::cout);
